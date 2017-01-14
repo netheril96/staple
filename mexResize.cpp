@@ -2,7 +2,6 @@
 #include <assert.h>
 #include <string.h>
 #include "mex.h"
-#include "MxArray.hpp"
 #include <vector>
 
 #include <opencv2/opencv.hpp>
