@@ -3,6 +3,7 @@
 #include <string.h>
 #include "mex.h"
 #include <vector>
+#include "MxArray.hpp"
 
 #include <opencv2/opencv.hpp>
 
