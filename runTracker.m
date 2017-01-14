@@ -4,7 +4,7 @@ function runTracker(sequence, start_frame)
     %% Read params.txt
     params = readParams('params.txt');
 	%% load video info
-	sequence_path = ['../Sequences/',sequence,'/'];
+	sequence_path = [sequence,'/'];
     img_path = [sequence_path 'imgs/'];
     %% Read files
     text_files = dir([sequence_path '*_frames.txt']);
