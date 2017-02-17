@@ -14,11 +14,7 @@ function [results] = trackerMain(p, im, bg_area, fg_area, area_resize_factor)
     [bg_hist, fg_hist] = updateHistModel(new_pwp_model, patch_padded, bg_area, fg_area, target_sz, p.norm_bg_area, p.n_bins, p.grayscale_sequence);
     new_pwp_model = false;
     % Hann (cosine) window
-    if isToolboxAvailable('Signal Processing Toolbox')
-        hann_window = single(hann(p.cf_response_size(1)) * hann(p.cf_response_size(2))');
-    else
         hann_window = single(myHann(p.cf_response_size(1)) * myHann(p.cf_response_size(2))');
-    end
     % gaussian-shaped desired response, centred in (1,1)
     % bandwidth proportional to target size
     output_sigma = sqrt(prod(p.norm_target_sz)) * p.output_sigma_factor / p.hog_cell_size;
@@ -34,10 +30,10 @@ function [results] = trackerMain(p, im, bg_area, fg_area, area_resize_factor)
         ys = exp(-0.5 * (ss.^2) / scale_sigma^2);
         ysf = single(fft(ys));
         if mod(p.num_scales,2) == 0
-            scale_window = single(hann(p.num_scales+1));
+            scale_window = single(myHann(p.num_scales+1));
             scale_window = scale_window(2:end);
         else
-            scale_window = single(hann(p.num_scales));
+            scale_window = single(myHann(p.num_scales));
         end;
 
         ss = 1:p.num_scales;

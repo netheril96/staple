@@ -59,7 +59,6 @@ function runTracker(sequence, start_frame)
     params.target_sz = round([h w]);
     [params, bg_area, fg_area, area_resize_factor] = initializeAllAreas(im, params);
 	if params.visualization
-		params.videoPlayer = vision.VideoPlayer('Position', [100 100 [size(im,2), size(im,1)]+30]);
 	end
     % in runTracker we do not output anything
 	params.fout = -1;

@@ -1,3 +1,25 @@
+#include <stdio.h>
+
+#define DLOG printf
+
+static void dump(const char* filename, const char* varname, const float* array, int count)
+{
+        if (count <= 0)
+                return;
+        printf("Dumping %s (count=%d) into %s\n", varname, count, filename);
+        FILE* fp = fopen(filename, "wb");
+        if (!fp) {
+                perror(filename);
+                return;
+        }
+        fprintf(fp, "%.9ff", array[0]);
+        for (int i = 1; i < count; ++i)
+                fprintf(fp, ",\t%.9ff", array[i]);
+        putc('\n', fp);
+        fclose(fp);
+}
+
+#define DDUMP(fn, array, count) dump(fn, #array, array, count)
 /*******************************************************************************
 * Piotr's Image&Video Toolbox      Version 3.24
 * Copyright 2013 Piotr Dollar & Ron Appel.  [pdollar-at-caltech.edu]
@@ -619,6 +641,8 @@ void hog(float* M, float* O, float* H, int h, int w, int binSize,
 void fhog(float* M, float* O, float* H, int h, int w, int binSize,
     int nOrients, int softBin, float clip)
 {
+        DLOG("%s called with M=%p, O=%p, H=%p, h=%d, w=%d, binsize=%d, nOrients=%d, softBin=%d, clip=%f\n",
+                        __func__, M, O, H, h, w, binSize, nOrients, softBin, clip);
     const int hb = h / binSize, wb = w / binSize, nb = hb * wb, nbo = nb * nOrients;
     float *N, *R1, *R2;
     int o, x;
@@ -716,7 +740,12 @@ void mGradMag(int nl, mxArray* pl[], int nr, const mxArray* pr[])
     pl[0] = mxCreateMatrix3(h, w, 1, mxSINGLE_CLASS, 0, (void**)&M);
     if (nl >= 2)
         pl[1] = mxCreateMatrix3(h, w, 1, mxSINGLE_CLASS, 0, (void**)&O);
+    DLOG("%s called with h=%d, w=%d, d=%d, c=%d, full=%d, I=%p, M=%p, O=%p\n", __func__, h, w, d, c, full, I, M, O);
+    DDUMP("I.bin", I, h * w * d);
     gradMag(I, M, O, h, w, d, full > 0);
+    DDUMP("M_mag.bin", M, h * w);
+    if (O)
+            DDUMP("O_mag.bin", O, h * w);
 }
 
 // gradMagNorm( M, S, norm ) - operates on M - see gradientMag.m
@@ -752,6 +781,11 @@ void mGradHist(int nl, mxArray* pl[], int nr, const mxArray* pr[])
     wb = w / binSize;
     nChns = useHog == 0 ? nOrients : (useHog == 1 ? nOrients * 4 : nOrients * 3 + 5);
     pl[0] = mxCreateMatrix3(hb, wb, nChns, mxSINGLE_CLASS, 1, (void**)&H);
+
+    if (M)
+            DDUMP("M_hist.bin", M, h * w);
+    if (O)
+            DDUMP("O_hist.bin", O, h * w);
     if (nOrients == 0)
         return;
     if (useHog == 0) {
@@ -761,6 +795,7 @@ void mGradHist(int nl, mxArray* pl[], int nr, const mxArray* pr[])
     } else {
         fhog(M, O, H, h, w, binSize, nOrients, softBin, clipHog);
     }
+    DDUMP("H.bin", H, hb * wb * nChns);
 }
 
 // inteface to various gradient functions (see corresponding Matlab functions)
@@ -771,6 +806,7 @@ void mexFunction(int nl, mxArray* pl[], int nr, const mxArray* pr[])
     f = mxGetString(pr[0], action, 1024);
     nr--;
     pr++;
+    DLOG("mexFunction called with action %s\n", action);
     if (f)
         mexErrMsgTxt("Failed to get action.");
     else if (!strcmp(action, "gradient2"))
