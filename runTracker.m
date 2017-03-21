@@ -5,32 +5,20 @@ function runTracker(sequence, start_frame)
     params = readParams('params.txt');
 	%% load video info
 	sequence_path = [sequence,'/'];
-    img_path = [sequence_path 'imgs/'];
+    img_path = sequence_path;
     %% Read files
-    text_files = dir([sequence_path '*_frames.txt']);
-    f = fopen([sequence_path text_files(1).name]);
-    frames = textscan(f, '%f,%f');
-    if exist('start_frame')
-        frames{1} = start_frame;
-    else
-        frames{1} = 1;
-    end
-    
-    fclose(f);
     
     params.bb_VOT = csvread([sequence_path 'groundtruth.txt']);
-    region = params.bb_VOT(frames{1},:);
+    region = params.bb_VOT(1, :);
     %%%%%%%%%%%%%%%%%%%%%%%%%
     % read all the frames in the 'imgs' subfolder
-    dir_content = dir([sequence_path 'imgs/']);
+    dir_content = dir([img_path, '/*.jpg']);
     % skip '.' and '..' from the count
-    n_imgs = length(dir_content) - 2;
+    n_imgs = length(dir_content);
     img_files = cell(n_imgs, 1);
     for ii = 1:n_imgs
-        img_files{ii} = dir_content(ii+2).name;
+        img_files{ii} = dir_content(ii).name;
     end
-       
-    img_files(1:start_frame-1)=[];
 
     im = imread([img_path img_files{1}]);
     % is a grayscale sequence ?
