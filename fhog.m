@@ -61,6 +61,10 @@ function H = fhog( I, binSize, nOrients, clip, crop )
 %Note: modified to be more self-contained
 
 if( nargin<2 ), binSize=8; end
+
+H = originalFHOG(double(I), binSize);
+return
+
 if( nargin<3 ), nOrients=9; end
 if( nargin<4 ), clip=.2; end
 if( nargin<5 ), crop=0; end

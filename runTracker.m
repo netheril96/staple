@@ -1,8 +1,13 @@
-function runTracker(sequence, start_frame)
+function runTracker(sequence, fid)
 % RUN_TRACKER  is the external function of the tracker - does initialization and calls trackerMain
 
     %% Read params.txt
     params = readParams('params.txt');
+    if exist('fid', 'var') && fid > 0
+        params.fout = fid;
+    else
+        params.fout = -1;
+    end
 	%% load video info
 	sequence_path = [sequence,'/'];
     img_path = sequence_path;
@@ -19,6 +24,8 @@ function runTracker(sequence, start_frame)
     for ii = 1:n_imgs
         img_files{ii} = dir_content(ii).name;
     end
+    
+    img_files = sort(img_files);
 
     im = imread([img_path img_files{1}]);
     % is a grayscale sequence ?
@@ -48,10 +55,7 @@ function runTracker(sequence, start_frame)
     [params, bg_area, fg_area, area_resize_factor] = initializeAllAreas(im, params);
 	if params.visualization
 		params.videoPlayer = vision.VideoPlayer('Position', [100 100 [size(im,2), size(im,1)]+30]);
-	end
-    % in runTracker we do not output anything
-	params.fout = -1;
+    end
 	% start the actual tracking
 	trackerMain(params, im, bg_area, fg_area, area_resize_factor);
-    fclose('all');
 end
